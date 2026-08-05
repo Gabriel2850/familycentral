@@ -11,12 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+      Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+
+            // ⚡ NUEVOS CAMPOS AGREGADOS PARA FAMILYCENTRAL ⚡
+            // 🔒 Campo de Roles: 'admin' o 'empleado' (Por defecto todos nacen como empleados)
+            $table->enum('role', ['admin', 'empleado'])->default('empleado');
+            
+            // 🔑 Campos para Doble Factor de Autenticación (2FA)
+            $table->text('two_factor_secret')->nullable();
+            $table->text('two_factor_recovery_codes')->nullable();
+            $table->timestamp('two_factor_confirmed_at')->nullable();
+
             $table->rememberToken();
             $table->timestamps();
         });
