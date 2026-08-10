@@ -33,6 +33,10 @@ new class extends Component
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
                         {{ __('Dashboard') }}
                     </x-nav-link>
+
+                    <x-nav-link :href="route('agenda.index')" :active="request()->routeIs('agenda.*')" wire:navigate>
+    {{ __('Agenda Semanal') }}
+</x-nav-link>
                 </div>
             </div>
 
@@ -84,6 +88,11 @@ new class extends Component
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            <x-nav-link :href="route('agenda.index')" :active="request()->routeIs('agenda.*')" wire:navigate>
+    {{ __('Agenda Semanal') }}
+</x-nav-link>
+
         </div>
 
         <!-- Responsive Settings Options -->
