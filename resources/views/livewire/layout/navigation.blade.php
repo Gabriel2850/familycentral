@@ -90,8 +90,8 @@ new class extends Component
             </x-responsive-nav-link>
 
             <x-nav-link :href="route('agenda.index')" :active="request()->routeIs('agenda.*')" wire:navigate>
-    {{ __('Agenda Semanal') }}
-</x-nav-link>
+            {{ __('Agenda Semanal') }}
+           </x-nav-link>
 
         </div>
 
