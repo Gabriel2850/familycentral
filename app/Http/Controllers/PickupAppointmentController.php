@@ -104,4 +104,25 @@ class PickupAppointmentController extends Controller
 
         return redirect()->back()->with('success', 'Número de tracking actualizado.');
     }
+
+    /**
+     * Sube y almacena la factura / recibo de la cita de recolección.
+     */
+    public function uploadInvoice(Request $request, PickupAppointment $appointment)
+    {
+        $request->validate([
+            'invoice' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120', // Máx 5MB
+        ]);
+
+        if ($request->hasFile('invoice')) {
+            // Guardar en storage/app/public/invoices
+            $path = $request->file('invoice')->store('invoices', 'public');
+
+            $appointment->update([
+                'invoice_path' => $path,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Factura subida correctamente.');
+    }
 }

@@ -18,6 +18,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/agenda', [PickupAppointmentController::class, 'index'])->name('agenda.index');
     Route::post('/agenda', [PickupAppointmentController::class, 'store'])->name('agenda.store');
     Route::patch('/agenda/{appointment}/tracking', [PickupAppointmentController::class, 'updateTracking'])->name('agenda.updateTracking');
+    Route::post('/agenda/{appointment}/invoice', [PickupAppointmentController::class, 'uploadInvoice'])->name('agenda.uploadInvoice');
 });
 
 require __DIR__.'/auth.php';

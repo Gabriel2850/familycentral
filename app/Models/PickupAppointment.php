@@ -19,6 +19,7 @@ class PickupAppointment extends Model
         'tracking_number',
         'status',
         'notes',
+        'invoice_path',
     ];
 
     protected $casts = [
