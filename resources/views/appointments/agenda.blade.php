@@ -133,34 +133,34 @@
                                     @endif
                                 </div>
 
-                                <div class="pt-2 border-t border-gray-100 mt-2">
-                                  @if($item->invoice_path)
-                                   <a href="{{ asset('storage/' . $item->invoice_path) }}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-bold text-family-blue hover:text-family-orange transition">
-                                   📄 Ver / Descargar Factura
-                                     </a>
-                                  @else
-                                <form action="{{ route('agenda.uploadInvoice', $item->id) }}" method="POST" enctype="multipart/form-data" class="space-y-1">
-                                  @csrf
-                                   <label class="block text-[10px] text-gray-500 font-semibold">Adjuntar Factura (PDF/Imagen):</label>
-                                     <div class="flex gap-1 items-center">
-                                     <input type="file" name="invoice" accept=".pdf,.jpg,.jpeg,.png" required class="w-full text-[10px] text-gray-500 file:mr-1 file:py-0.5 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-semibold file:bg-gray-100 file:text-family-blue hover:file:bg-gray-200">
-                                     <button type="submit" class="bg-family-orange text-white px-2 py-0.5 rounded text-[10px] font-bold hover:bg-family-orange-dark">
-                                      Subir
-                                     </button>
-                                   </div>
-                                  </form>
-                                @endif
-                              </div>
-                            </div>
-                        @empty
-                            <div class="text-center py-6 text-gray-400 italic text-xs">
-                                Sin recolecciones
-                            </div>
-                        @endforelse
-                    </div>
-                </div>
-            @endfor
+                                <!-- 📄 Factura / Comprobante con Control de Rol -->
+<div class="pt-2 border-t border-gray-100 mt-2">
+    @if($item->invoice_path)
+        <div class="flex items-center justify-between">
+            <a href="{{ asset('storage/' . $item->invoice_path) }}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-bold text-family-blue hover:text-family-orange transition">
+                📄 Ver Factura
+            </a>
+
+            <!-- Solo el Admin puede descargar/imprimir formalmente -->
+            @if(auth()->user()->role === 'admin')
+                <a href="{{ asset('storage/' . $item->invoice_path) }}" download class="text-[10px] bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-2 py-0.5 rounded">
+                    ⬇️ Descargar
+                </a>
+            @endif
         </div>
+    @else
+        <form action="{{ route('agenda.uploadInvoice', $item->id) }}" method="POST" enctype="multipart/form-data" class="space-y-1">
+            @csrf
+            <label class="block text-[10px] text-gray-500 font-semibold">Adjuntar Factura (PDF/Imagen):</label>
+            <div class="flex gap-1 items-center">
+                <input type="file" name="invoice" accept=".pdf,.jpg,.jpeg,.png" required class="w-full text-[10px] text-gray-500 file:mr-1 file:py-0.5 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-semibold file:bg-gray-100 file:text-family-blue">
+                <button type="submit" class="bg-family-orange text-white px-2 py-0.5 rounded text-[10px] font-bold hover:bg-family-orange-dark">
+                    Subir
+                </button>
+            </div>
+        </form>
+    @endif
+</div>
 
     </div>
 </x-app-layout>
