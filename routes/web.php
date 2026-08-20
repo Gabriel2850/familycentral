@@ -24,6 +24,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/historial', [HistoryController::class, 'index'])->name('history.index');
     Route::delete('/historial/{appointment}', [HistoryController::class, 'destroy'])->name('history.destroy');
     Route::get('/agenda/{appointment}/pdf', [PdfReportController::class, 'generateAppointmentPdf'])->name('agenda.pdf');
-});
 
-require __DIR__.'/auth.php';
+Route::get('/monitoreo', function () {
+    return view('tracking.map');
+})->middleware(['auth'])->name('tracking.map');
+
+    });
+
+    require __DIR__.'/auth.php';
