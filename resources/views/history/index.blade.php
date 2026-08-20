@@ -104,6 +104,10 @@
                                         <a href="{{ asset('storage/' . $item->invoice_path) }}" target="_blank" class="text-family-blue font-bold hover:underline">
                                             📄 Ver PDF
                                         </a>
+
+                                        <a href="{{ route('agenda.pdf', $item->id) }}" target="_blank" class="inline-flex items-center gap-1 text-[10px] bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold px-2 py-1 rounded transition">
+                                            🖨️ Imprimir Ficha PDF
+                                        </a>
                                     @else
                                         <span class="text-gray-400 italic">Sin factura</span>
                                     @endif

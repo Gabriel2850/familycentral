@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PickupAppointmentController; // 👈 Importamos el controlador
 use App\Http\Controllers\HistoryController;
+use App\Http\Controllers\PdfReportController;
 
 Route::view('/', 'welcome');
 
@@ -22,6 +23,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/agenda/{appointment}/invoice', [PickupAppointmentController::class, 'uploadInvoice'])->name('agenda.uploadInvoice');
     Route::get('/historial', [HistoryController::class, 'index'])->name('history.index');
     Route::delete('/historial/{appointment}', [HistoryController::class, 'destroy'])->name('history.destroy');
+    Route::get('/agenda/{appointment}/pdf', [PdfReportController::class, 'generateAppointmentPdf'])->name('agenda.pdf');
 });
 
 require __DIR__.'/auth.php';
