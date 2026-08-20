@@ -35,8 +35,12 @@ new class extends Component
                     </x-nav-link>
 
                     <x-nav-link :href="route('agenda.index')" :active="request()->routeIs('agenda.*')" wire:navigate>
-    {{ __('Agenda Semanal') }}
-</x-nav-link>
+                        {{ __('Agenda Semanal') }}
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('tracking.map')" :active="request()->routeIs('tracking.map')">
+                        {{ __('📍 Monitoreo GPS') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -92,6 +96,10 @@ new class extends Component
             <x-nav-link :href="route('agenda.index')" :active="request()->routeIs('agenda.*')" wire:navigate>
             {{ __('Agenda Semanal') }}
            </x-nav-link>
+
+            <x-responsive-nav-link :href="route('tracking.map')" :active="request()->routeIs('tracking.map')">
+            {{ __('📍 Monitoreo GPS') }}
+           </x-responsive-nav-link>
 
         </div>
 
