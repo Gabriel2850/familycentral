@@ -24,9 +24,14 @@
                 </header>
             @endif
 
-            <main>
-                {{ $slot }}
-            </main>
+           <main class="py-6">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        {{-- Alertas Globales del Sistema --}}
+        @include('components.flash-messages')
+
+        {{ $slot }}
+    </div>
+</main>
         </div>
     </body>
 </html>
