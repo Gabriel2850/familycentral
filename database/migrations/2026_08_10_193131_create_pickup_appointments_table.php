@@ -16,7 +16,7 @@ return new class extends Migration
 
         // 🔗 Relaciones con Clientes, Zonas y el Usuario que agendó
         $table->foreignId('customer_id')->constrained()->onDelete('cascade');
-        $table->foreignId('zone_id')->nullable()->constrained()->nullOnDelete();
+        $table->foreignId('zone_id')->nullable()->constrained('zones')->onDelete('cascade');
         $table->foreignId('user_id')->comment('Empleado o Admin que agendó')->constrained();
 
         // 📅 Información de la Agenda (Día específico de Lunes a Sábado)

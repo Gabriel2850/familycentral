@@ -48,7 +48,7 @@ class PickupAppointmentController extends Controller
             'phone'          => 'required|string|max:20',
             'email'          => 'nullable|email',
             'address'        => 'required|string',
-            'zone_id'        => 'nullable|exists:zones,id',
+            'zone_id'        => 'required|exists:zones,id',
             'scheduled_date' => 'required|date',
             'box_quantity'   => 'required|integer|min:1',
             'box_dimensions' => 'required|string|max:100', // Ejemplo: "18x18x24 in"
