@@ -1,6 +1,39 @@
 <x-app-layout>
+    <!-- Estilos de Animación Nativa CSS -->
+    <style>
+        @keyframes customSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes customPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.35; transform: scale(0.97); }
+        }
+        .spinner-ring {
+            animation: customSpin 0.9s linear infinite !important;
+        }
+        .logo-pulse {
+            animation: customPulse 1.4s ease-in-out infinite !important;
+        }
+    </style>
+
+    <!-- Overlay de Carga con Fondo Oscuro Completo -->
+    <div id="dashboard-loader" class="fixed inset-0 z-[999999] flex flex-col items-center justify-center bg-[#000232]/95 backdrop-blur-md transition-opacity duration-300 opacity-100 pointer-events-auto px-4">
+        <div class="flex flex-col items-center justify-center gap-5">
+            <div class="relative flex items-center justify-center w-48 h-48 sm:w-56 sm:h-56">
+                <div class="spinner-ring absolute inset-0 w-full h-full rounded-full border-4 border-solid border-white/10 border-t-[#f6721d] border-r-[#f6721d]"></div>
+                <div class="logo-pulse w-36 h-36 sm:w-44 sm:h-44 rounded-full bg-white/5 border border-white/10 flex items-center justify-center p-5 shadow-2xl overflow-hidden">
+                    <img src="{{ asset('images/familyenviosazul2.png') }}" alt="Logo" class="w-full h-full object-contain filter drop-shadow-lg">
+                </div>
+            </div>
+            <span class="logo-pulse text-white text-sm sm:text-base font-extrabold uppercase tracking-widest text-center mt-2">
+                Cargando...
+            </span>
+        </div>
+    </div>
+
     <x-slot name="header">
-        <h2 class="font-bold text-xl text-[#000232] leading-tight flex items-center gap-2">
+        <h2 class="font-semibold text-xl text-family-blue leading-tight flex items-center gap-2">
             📊 {{ __('Panel Principal y Métricas') }}
         </h2>
     </x-slot>
@@ -27,8 +60,6 @@
         .arrow-rotate {
             transform: rotate(180deg) !important;
         }
-
-        /* TABLA E HISTORIAL CORREGIDOS CON ALINEACIONES CENTRADAS */
         .history-table {
             width: 100% !important;
             border-collapse: separate !important;
@@ -74,8 +105,6 @@
             border: 1px solid #FFEDD5 !important;
             line-height: 1 !important;
         }
-
-        /* BOTÓN HISTORIAL CON MARGEN Y ESPACIADO FORZADOS */
         .btn-history-full {
             display: inline-flex !important;
             align-items: center !important;
@@ -104,12 +133,12 @@
 
     <div class="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
+        <!-- Tarjetas Métricas Superiores -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full mb-8">
-            
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
                     <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Total Recolecciones</span>
-                    <p class="text-3xl font-black text-[#000232] mt-1">{{ $totalPickups ?? 0 }}</p>
+                    <p class="text-3xl font-black text-[#000232] mt-1">{{ $totalPickups }}</p>
                 </div>
                 <div class="w-12 h-12 rounded-xl bg-blue-50 text-[#1d3085] flex items-center justify-center text-xl shrink-0">📦</div>
             </div>
@@ -117,15 +146,15 @@
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
                     <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Pendientes</span>
-                    <p class="text-3xl font-black text-amber-500 mt-1">{{ $pendingPickups ?? 0 }}</p>
+                    <p class="text-3xl font-black text-amber-500 mt-1">{{ $pendingPickups }}</p>
                 </div>
                 <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl shrink-0">⏳</div>
             </div>
 
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
-                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">En Ruta</span>
-                    <p class="text-3xl font-black text-[#f6721d] mt-1">{{ $inRoutePickups ?? 0 }}</p>
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Reprogramados</span>
+                    <p class="text-3xl font-black text-[#f6721d] mt-1">{{ $inRoutePickups }}</p>
                 </div>
                 <div class="w-12 h-12 rounded-xl bg-orange-50 text-[#f6721d] flex items-center justify-center text-xl shrink-0">🚚</div>
             </div>
@@ -133,13 +162,13 @@
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
                     <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Completadas</span>
-                    <p class="text-3xl font-black text-emerald-600 mt-1">{{ $completedPickups ?? 0 }}</p>
+                    <p class="text-3xl font-black text-emerald-600 mt-1">{{ $completedPickups }}</p>
                 </div>
                 <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0">✅</div>
             </div>
-
         </div>
 
+        <!-- Sección de Gráficos y Desglose por Zonas -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
             
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
@@ -159,6 +188,7 @@
 
                     <div class="grid grid-cols-2 gap-3">
                         
+                        <!-- Zona Norte -->
                         <div x-data="{ open: false }" class="relative">
                             <button @click="open = !open" @click.away="open = false" type="button" class="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-[#000232] flex items-center justify-between">
                                 <span>📍 Zona Norte</span>
@@ -174,16 +204,16 @@
                                 <div class="flex justify-between text-xs py-1 text-slate-600"><span>Palo Alto / Mountain View</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Palo Alto / Mountain View'] ?? 0 }}</span></div>
                                 <div class="flex justify-between text-xs py-1 text-slate-600"><span>San Mateo / Peninsula</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['San Mateo / Peninsula'] ?? 0 }}</span></div>
                                 <div class="flex justify-between text-xs py-1 text-slate-600"><span>Oakland / Alameda / Berkeley</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Oakland / Alameda / Berkeley'] ?? 0 }}</span></div>
-                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Marin County (San Rafael / Novato)</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Marin County'] ?? 0 }}</span></div>
-                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Napa Valley (Napa / St. Helena / Calistoga)</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Napa Valley'] ?? 0 }}</span></div>
-                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Sonoma County (Santa Rosa / Petaluma / Healdsburg)</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Sonoma County'] ?? 0 }}</span></div>
-                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Ukiah / Lakeport / Clearlake</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Ukiah / Lakeport'] ?? 0 }}</span></div>
-                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Sacramento Metro / West Sacramento</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Sacramento Metro'] ?? 0 }}</span></div>
-                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Elk Grove / Rancho Cordova</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Elk Grove'] ?? 0 }}</span></div>
-                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Roseville / Rocklin / Lincoln</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Roseville'] ?? 0 }}</span></div>
-                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Yolo (Davis / Woodland)</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Yolo'] ?? 0 }}</span></div>
-                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Placer / El Dorado Foothills (Auburn / Placerville)</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Placer Foothills'] ?? 0 }}</span></div>
-                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Gold Country (Jackson / Sonora / Angels Camp)</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Gold Country'] ?? 0 }}</span></div>
+                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Marin County (San Rafael / Novato)</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Marin County (San Rafael / Novato)'] ?? 0 }}</span></div>
+                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Napa Valley (Napa / St. Helena / Calistoga)</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Napa Valley (Napa / St. Helena / Calistoga)'] ?? 0 }}</span></div>
+                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Sonoma County (Santa Rosa / Petaluma / Healdsburg)</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Sonoma County (Santa Rosa / Petaluma / Healdsburg)'] ?? 0 }}</span></div>
+                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Ukiah / Lakeport / Clearlake</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Ukiah / Lakeport / Clearlake'] ?? 0 }}</span></div>
+                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Sacramento Metro / West Sacramento</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Sacramento Metro / West Sacramento'] ?? 0 }}</span></div>
+                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Elk Grove / Rancho Cordova</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Elk Grove / Rancho Cordova'] ?? 0 }}</span></div>
+                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Roseville / Rocklin / Lincoln</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Roseville / Rocklin / Lincoln'] ?? 0 }}</span></div>
+                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Yolo (Davis / Woodland)</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Yolo (Davis / Woodland)'] ?? 0 }}</span></div>
+                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Placer / El Dorado Foothills (Auburn / Placerville)</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Placer / El Dorado Foothills (Auburn / Placerville)'] ?? 0 }}</span></div>
+                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Gold Country (Jackson / Sonora / Angels Camp)</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Gold Country (Jackson / Sonora / Angels Camp)'] ?? 0 }}</span></div>
 
                                 @if(isset($customDynamicZones['norte']))
                                     @foreach($customDynamicZones['norte'] as $newZone => $count)
@@ -193,6 +223,7 @@
                             </div>
                         </div>
 
+                        <!-- Zona Sur -->
                         <div x-data="{ open: false }" class="relative">
                             <button @click="open = !open" @click.away="open = false" type="button" class="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-[#000232] flex items-center justify-between">
                                 <span>📍 Zona Sur</span>
@@ -205,14 +236,14 @@
                                 <span class="text-[10px] font-bold text-[#f6721d] uppercase tracking-wider block border-b border-slate-100 pb-1.5 mb-1.5">Ciudades y Regiones Sur</span>
                                 
                                 <div class="flex justify-between text-xs py-1 text-slate-600"><span>San Jose / South Bay</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['San Jose / South Bay'] ?? 0 }}</span></div>
-                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Santa Clara / Sunnyvale / Cupertino</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Santa Clara / Sunnyvale'] ?? 0 }}</span></div>
+                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Santa Clara / Sunnyvale / Cupertino</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Santa Clara / Sunnyvale / Cupertino'] ?? 0 }}</span></div>
                                 <div class="flex justify-between text-xs py-1 text-slate-600"><span>Morgan Hill / Gilroy</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Morgan Hill / Gilroy'] ?? 0 }}</span></div>
                                 <div class="flex justify-between text-xs py-1 text-slate-600"><span>Salinas / Hollister</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Salinas / Hollister'] ?? 0 }}</span></div>
-                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>South Salinas Valley (Soledad / Greenfield / King City)</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['South Salinas Valley'] ?? 0 }}</span></div>
+                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>South Salinas Valley (Soledad / Greenfield / King City)</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['South Salinas Valley (Soledad / Greenfield / King City)'] ?? 0 }}</span></div>
                                 <div class="flex justify-between text-xs py-1 text-slate-600"><span>Paso Robles / Atascadero</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Paso Robles / Atascadero'] ?? 0 }}</span></div>
-                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>San Luis Obispo / Pismo Beach</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['San Luis Obispo'] ?? 0 }}</span></div>
-                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Fresno / Clovis / Sanger</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Fresno / Clovis'] ?? 0 }}</span></div>
-                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>South Fresno Co. (Selma / Kingsburg / Coalinga)</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['South Fresno Co.'] ?? 0 }}</span></div>
+                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>San Luis Obispo / Pismo Beach</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['San Luis Obispo / Pismo Beach'] ?? 0 }}</span></div>
+                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Fresno / Clovis / Sanger</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Fresno / Clovis / Sanger'] ?? 0 }}</span></div>
+                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>South Fresno Co. (Selma / Kingsburg / Coalinga)</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['South Fresno Co. (Selma / Kingsburg / Coalinga)'] ?? 0 }}</span></div>
 
                                 @if(isset($customDynamicZones['sur']))
                                     @foreach($customDynamicZones['sur'] as $newZone => $count)
@@ -222,6 +253,7 @@
                             </div>
                         </div>
 
+                        <!-- Zona Este -->
                         <div x-data="{ open: false }" class="relative">
                             <button @click="open = !open" @click.away="open = false" type="button" class="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-[#000232] flex items-center justify-between">
                                 <span>📍 Zona Este</span>
@@ -233,14 +265,14 @@
                             <div x-show="open" class="custom-dropdown-menu" style="display: none;">
                                 <span class="text-[10px] font-bold text-[#f6721d] uppercase tracking-wider block border-b border-slate-100 pb-1.5 mb-1.5">Ciudades y Regiones Este</span>
                                 
-                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Hayward / Fremont / Union City</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Hayward / Fremont'] ?? 0 }}</span></div>
-                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Tri-Valley (Dublin / Pleasanton / Livermore)</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Tri-Valley'] ?? 0 }}</span></div>
-                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Contra Costa (Concord / Walnut Creek / Pittsburg)</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Contra Costa'] ?? 0 }}</span></div>
-                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Solano (Vallejo / Fairfield / Vacaville)</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Solano'] ?? 0 }}</span></div>
+                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Hayward / Fremont / Union City</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Hayward / Fremont / Union City'] ?? 0 }}</span></div>
+                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Tri-Valley (Dublin / Pleasanton / Livermore)</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Tri-Valley (Dublin / Pleasanton / Livermore)'] ?? 0 }}</span></div>
+                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Contra Costa (Concord / Walnut Creek / Pittsburg)</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Contra Costa (Concord / Walnut Creek / Pittsburg)'] ?? 0 }}</span></div>
+                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Solano (Vallejo / Fairfield / Vacaville)</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Solano (Vallejo / Fairfield / Vacaville)'] ?? 0 }}</span></div>
                                 <div class="flex justify-between text-xs py-1 text-slate-600"><span>Tracy / Mountain House</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Tracy / Mountain House'] ?? 0 }}</span></div>
-                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Stockton / Lodi / Manteca</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Stockton / Lodi'] ?? 0 }}</span></div>
-                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Modesto / Turlock / Ceres</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Modesto / Turlock'] ?? 0 }}</span></div>
-                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Merced / Los Banos / Atwater</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Merced / Los Banos'] ?? 0 }}</span></div>
+                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Stockton / Lodi / Manteca</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Stockton / Lodi / Manteca'] ?? 0 }}</span></div>
+                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Modesto / Turlock / Ceres</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Modesto / Turlock / Ceres'] ?? 0 }}</span></div>
+                                <div class="flex justify-between text-xs py-1 text-slate-600"><span>Merced / Los Banos / Atwater</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Merced / Los Banos / Atwater'] ?? 0 }}</span></div>
                                 <div class="flex justify-between text-xs py-1 text-slate-600"><span>Madera / Chowchilla</span> <span class="font-bold text-[#000232]">{{ $zoneCounts['Madera / Chowchilla'] ?? 0 }}</span></div>
 
                                 @if(isset($customDynamicZones['este']))
@@ -251,6 +283,7 @@
                             </div>
                         </div>
 
+                        <!-- Zona Oeste / Costa -->
                         <div x-data="{ open: false }" class="relative">
                             <button @click="open = !open" @click.away="open = false" type="button" class="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-[#000232] flex items-center justify-between">
                                 <span>📍 Zona Oeste / Costa</span>
@@ -277,7 +310,8 @@
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <!-- Gráfico de Estado Operativo -->
+            <div class="bg-[#ffffff] p-6 rounded-2xl border border-slate-200 shadow-sm">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-sm font-bold text-[#1d3085] flex items-center gap-2">
                         <span>📊</span> Estado Operativo de Envíos
@@ -289,8 +323,8 @@
 
         </div>
 
+        <!-- Tabla de Últimos Envíos Registrados -->
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 w-full">
-            
             <div class="flex flex-col items-center justify-center text-center pb-2 border-b border-slate-100 mb-8">
                 <div>
                     <h3 class="text-lg font-black text-[#000232] flex items-center justify-center gap-2">
@@ -321,54 +355,63 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($recentPickups ?? [] as $pickup)
+                        @forelse($recentPickups as $pickup)
                             <tr>
                                 <td style="font-weight: 700; color: #000232; text-align: left;">
-                                    {{ $pickup->customer?->name ?? $pickup->client_name ?? 'prueba' }}
+                                    {{ $pickup->customer?->name ?? $pickup->client_name ?? 'N/A' }}
                                 </td>
                                 <td style="color: #475569; font-weight: 600; text-align: center;">
-                                    {{ $pickup->box_size ?? $pickup->box_dimensions ?? $pickup->box_type ?? '30x30x30' }}
+                                    {{ $pickup->box_size ?? $pickup->box_dimensions ?? $pickup->box_type ?? 'Sin definir' }}
                                 </td>
                                 <td style="text-align: center; color: #64748B; font-family: monospace; font-weight: 600;">
-                                    {{ isset($pickup->scheduled_date) ? \Carbon\Carbon::parse($pickup->scheduled_date)->format('d/m/Y') : '20/08/2026' }}
+                                    {{ isset($pickup->scheduled_date) ? \Carbon\Carbon::parse($pickup->scheduled_date)->format('d/m/Y') : 'N/A' }}
                                 </td>
                                 <td style="text-align: center;">
                                     <span class="badge-status">
-                                        {{ ucfirst($pickup->status ?? 'Programado') }}
+                                        {{ ucfirst($pickup->status ?? 'Pendiente') }}
                                     </span>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td style="font-weight: 700; color: #000232; text-align: left;">prueba</td>
-                                <td style="color: #475569; font-weight: 600; text-align: center;">30x30x30</td>
-                                <td style="text-align: center; color: #64748B; font-family: monospace; font-weight: 600;">20/08/2026</td>
-                                <td style="text-align: center;">
-                                    <span class="badge-status">Programado</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: 700; color: #000232; text-align: left;">prueba</td>
-                                <td style="color: #475569; font-weight: 600; text-align: center;">24x24x24</td>
-                                <td style="text-align: center; color: #64748B; font-family: monospace; font-weight: 600;">16/08/2026</td>
-                                <td style="text-align: center;">
-                                    <span class="badge-status">Programado</span>
+                                <td colspan="4" class="text-center py-6 text-slate-400 font-medium">
+                                    No hay envíos recientes registrados en la plataforma.
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-
         </div>
 
     </div>
 
+    <!-- ApexCharts JS Script -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        window.zonesChartInstance = null;
+        window.statusChartInstance = null;
+
+        function renderDashboardCharts() {
+            var zonesContainer = document.querySelector("#chart-zones");
+            var statusContainer = document.querySelector("#chart-status");
+
+            if (!zonesContainer || !statusContainer) return;
+
+            if (window.zonesChartInstance) {
+                window.zonesChartInstance.destroy();
+                window.zonesChartInstance = null;
+            }
+            if (window.statusChartInstance) {
+                window.statusChartInstance.destroy();
+                window.statusChartInstance = null;
+            }
+
+            var zonesData = {!! json_encode([(int)($totalNorte ?? 0), (int)($totalSur ?? 0), (int)($totalEste ?? 0), (int)($totalOeste ?? 0)]) !!};
+            var statusData = {!! json_encode([(int)($pendingPickups ?? 0), (int)($inRoutePickups ?? 0), (int)($completedPickups ?? 0)]) !!};
+
             var zonesOptions = {
-                series: [{{ $totalNorte ?? 1 }}, {{ $totalSur ?? 1 }}, {{ $totalEste ?? 0 }}, {{ $totalOeste ?? 0 }}],
+                series: zonesData,
                 labels: ['Norte', 'Sur', 'Este', 'Oeste'],
                 chart: { type: 'donut', height: 250, fontFamily: 'Inter, system-ui, sans-serif' },
                 colors: ['#1d3085', '#f6721d', '#10B981', '#000232'],
@@ -380,13 +423,7 @@
                                 show: true,
                                 name: { show: true, fontSize: '12px', fontWeight: 600, color: '#64748B', offsetY: -4 },
                                 value: { show: true, fontSize: '20px', fontWeight: 800, color: '#000232', offsetY: 4 },
-                                total: {
-                                    show: true,
-                                    label: 'Total Envíos',
-                                    color: '#64748B',
-                                    fontSize: '11px',
-                                    fontWeight: 600
-                                }
+                                total: { show: true, label: 'Total Envíos', color: '#64748B', fontSize: '11px', fontWeight: 600 }
                             }
                         }
                     }
@@ -395,10 +432,12 @@
                 legend: { show: false },
                 stroke: { width: 2 }
             };
-            new ApexCharts(document.querySelector("#chart-zones"), zonesOptions).render();
+
+            window.zonesChartInstance = new ApexCharts(zonesContainer, zonesOptions);
+            window.zonesChartInstance.render();
 
             var statusOptions = {
-                series: [{ name: 'Cantidad', data: [{{ $pendingPickups ?? 2 }}, {{ $inRoutePickups ?? 0 }}, {{ $completedPickups ?? 0 }}] }],
+                series: [{ name: 'Cantidad', data: statusData }],
                 chart: { type: 'bar', height: 280, toolbar: { show: false }, fontFamily: 'Inter, system-ui, sans-serif' },
                 plotOptions: { bar: { borderRadius: 6, columnWidth: '35%', distributed: true } },
                 colors: ['#F59E0B', '#f6721d', '#10B981'],
@@ -411,7 +450,34 @@
                 grid: { borderColor: '#F1F5F9', strokeDashArray: 4 },
                 legend: { show: false }
             };
-            new ApexCharts(document.querySelector("#chart-status"), statusOptions).render();
+
+            window.statusChartInstance = new ApexCharts(statusContainer, statusOptions);
+            window.statusChartInstance.render();
+        }
+
+        (function handleDashboardLifecycle() {
+            var loader = document.getElementById('dashboard-loader');
+            var hasReloaded = sessionStorage.getItem('dashboard_reloaded');
+
+            if (!hasReloaded) {
+                sessionStorage.setItem('dashboard_reloaded', 'true');
+                window.location.reload();
+            } else {
+                setTimeout(function() {
+                    renderDashboardCharts();
+
+                    if (loader) {
+                        loader.classList.add('opacity-0', 'pointer-events-none');
+                        setTimeout(function() {
+                            loader.remove();
+                        }, 300);
+                    }
+                }, 200);
+            }
+        })();
+
+        document.addEventListener('livewire:navigating', function () {
+            sessionStorage.removeItem('dashboard_reloaded');
         });
     </script>
 </x-app-layout>

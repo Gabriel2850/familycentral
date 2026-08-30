@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Zone;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PickupAppointment extends Model
 {
     use HasFactory;
+    use SoftDeletes; // Habilita Soft Deletes
 
     protected $fillable = [
         'customer_id',
