@@ -79,14 +79,14 @@ new class extends Component
                     </a>
                 </div>
 
-                <!-- Navigation Links (con grosor de texto delgado/medium) -->
+                <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate class="text-base font-medium">
-                        {{ __('Dashboard') }}
+                        {{ __('📊 Dashboard') }}
                     </x-nav-link>
 
                     <x-nav-link :href="route('agenda.index')" :active="request()->routeIs('agenda.*')" wire:navigate class="text-base font-medium">
-                        {{ __('Agenda Semanal') }}
+                        {{ __('🗓️ Agenda Semanal') }}
                     </x-nav-link>
 
                     <!-- Historial Completo -->
@@ -97,6 +97,13 @@ new class extends Component
                     <x-nav-link :href="route('tracking.map')" :active="request()->routeIs('tracking.map')" class="text-base font-medium">
                         {{ __('📍 Monitoreo GPS') }}
                     </x-nav-link>
+
+                    <!-- 🛡️ Panel de Administración (Visible solo para Admins) -->
+                    @if(auth()->check() && auth()->user()->role === 'admin')
+                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.*')" wire:navigate class="text-base font-medium text-amber-400 hover:text-amber-300">
+                            {{ __('🛡️ Panel Administrador') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -120,6 +127,13 @@ new class extends Component
                             <x-dropdown-link :href="route('profile')" wire:navigate>
                                 {{ __('Perfil') }}
                             </x-dropdown-link>
+
+                            <!-- Option rápida a Panel Admin en el dropdown si es admin -->
+                            @if(auth()->check() && auth()->user()->role === 'admin')
+                                <x-dropdown-link :href="route('admin.users.index')" wire:navigate class="text-amber-600 font-semibold">
+                                    {{ __('Administración') }}
+                                </x-dropdown-link>
+                            @endif
 
                             <!-- Authentication -->
                             <button wire:click="logout" class="w-full text-start">
@@ -148,11 +162,11 @@ new class extends Component
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-[#000232]">
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
-                {{ __('Dashboard') }}
+                {{ __('📊 Dashboard') }}
             </x-responsive-nav-link>
 
             <x-responsive-nav-link :href="route('agenda.index')" :active="request()->routeIs('agenda.*')" wire:navigate>
-                {{ __('Agenda Semanal') }}
+                {{ __('🗓️ Agenda Semanal') }}
             </x-responsive-nav-link>
 
             <!-- Historial Completo -->
@@ -163,6 +177,13 @@ new class extends Component
             <x-responsive-nav-link :href="route('tracking.map')" :active="request()->routeIs('tracking.map')">
                 {{ __('📍 Monitoreo GPS') }}
             </x-responsive-nav-link>
+
+            <!-- 🛡️ Panel Admin Responsive -->
+            @if(auth()->check() && auth()->user()->role === 'admin')
+                <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.*')" wire:navigate class="text-amber-400">
+                    {{ __('🛡️ Panel Administrador') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->

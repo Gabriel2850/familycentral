@@ -443,7 +443,7 @@
                 colors: ['#F59E0B', '#f6721d', '#10B981'],
                 dataLabels: { enabled: true },
                 xaxis: {
-                    categories: ['Pendientes', 'En Ruta', 'Completados'],
+                    categories: ['Pendientes', 'Reprogramado', 'Recolectados'],
                     labels: { style: { colors: '#64748B', fontSize: '11px', fontWeight: 600 } }
                 },
                 yaxis: { labels: { style: { colors: '#94A3B8' } } },

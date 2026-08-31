@@ -7,6 +7,8 @@ use App\Models\Zone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Attributes\WithTrashed;
 
 class HistoryController extends Controller
 {
@@ -109,4 +111,24 @@ class HistoryController extends Controller
 
         return redirect()->back()->with('success', 'El envío se ha Cancelado correctamente.');
     }
+
+  /**
+ * 🚫 Cancelar envío (Mantiene el historial y la ficha)
+ */
+public function cancel(int|string $id)
+{
+    if (Auth::user()?->role !== 'admin') {
+        abort(403, 'No tienes permisos para realizar esta acción.');
+    }
+
+    // Busca la cita incluso si tiene Soft Delete (trashed)
+    $appointment = PickupAppointment::withTrashed()->findOrFail($id);
+
+    // Actualiza su estatus a cancelado
+    $appointment->update([
+        'status' => 'cancelado'
+    ]);
+
+    return redirect()->back()->with('success', 'El envío se ha cancelado correctamente.');
+}
 }

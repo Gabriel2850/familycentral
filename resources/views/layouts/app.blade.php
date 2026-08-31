@@ -5,7 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'FamilyCentral') }}</title>
+        <title>{{ config('app.name', 'Family Central') }}</title>
+
+        <!-- Favicon Family Central -->
+        <link rel="icon" type="image/png" href="{{ asset('images/familyenviosazul2.png') }}">
+        <link rel="shortcut icon" type="image/png" href="{{ asset('images/familyenviosazul2.png') }}">
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -24,14 +28,14 @@
                 </header>
             @endif
 
-           <main class="py-6">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        {{-- Alertas Globales del Sistema --}}
-        @include('components.flash-messages')
+            <main class="py-6">
+                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    {{-- Alertas Globales del Sistema --}}
+                    @include('components.flash-messages')
 
-        {{ $slot }}
-    </div>
-</main>
+                    {{ $slot }}
+                </div>
+            </main>
         </div>
     </body>
 </html>

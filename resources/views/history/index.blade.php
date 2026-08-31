@@ -120,14 +120,14 @@
                 <table class="w-full text-left divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr class="text-xs font-bold text-gray-600 uppercase tracking-wider">
-                            <th class="px-4 py-3.5">Fecha</th>
+                            <th class="px-6 py-3.5">Fecha</th>
                             <th class="px-4 py-3.5">Cliente</th>
-                            <th class="px-4 py-3.5">Contacto / Dirección</th>
+                            <th class="px-5 py-3.5">Contacto / Dirección</th>
                             <th class="px-4 py-3.5 text-center">Zona</th>
                             <th class="px-4 py-3.5 text-center">Estatus</th>
                             <th class="px-4 py-3.5">Cajas</th>
                             <th class="px-4 py-3.5">Tracking</th>
-                            <th class="px-4 py-3.5">Documentos</th>
+                            <th class="px-6 py-3.5">Documentos</th>
                             @if(auth()->user()->role === 'admin')
                                 <th class="px-4 py-3.5 text-right">Acciones</th>
                             @endif
@@ -209,17 +209,21 @@
                                         @endif
                                     </div>
                                 </td>
-                                @if(auth()->user()->role === 'admin')
-                                    <td class="px-4 py-4 text-right">
-                                        <form action="{{ route('history.destroy', $item->id) }}" method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar este registro?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-800 font-bold text-xs bg-red-50 hover:bg-red-100 border border-red-200 px-2.5 py-1 rounded transition">
-                                                Eliminar
-                                            </button>
-                                        </form>
-                                    </td>
-                                @endif
+     @if(auth()->user()->role === 'admin')
+    <td class="px-4 py-4 text-right">
+        @if($item->status !== 'cancelado')
+            <form action="{{ route('history.cancel', $item) }}" method="POST" onsubmit="return confirm('¿Seguro que deseas cancelar esta cita agendada?');">
+                @csrf
+                @method('PATCH')
+                <button type="submit" class="text-red-600 hover:text-red-800 font-bold text-xs bg-red-50 hover:bg-red-100 border border-red-200 px-1 py-1 rounded transition">
+                    Cancelar envío
+                </button>
+            </form>
+        @else
+            <span class="text-xs text-gray-400 italic">Cancelado</span>
+        @endif
+    </td>
+@endif
                             </tr>
                         @empty
                             <tr>

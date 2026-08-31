@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Forms;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -30,13 +31,30 @@ class LoginForm extends Form
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only(['email', 'password']), $this->remember)) {
+        // 1. Validar que las credenciales (email y password) sean correctas sin iniciar sesión aún
+        if (! Auth::validate($this->only(['email', 'password']))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
                 'form.email' => trans('auth.failed'),
             ]);
         }
+
+        // 2. Obtener el modelo del usuario intentando ingresar
+        /** @var User $user */
+        $user = User::where('email', $this->email)->firstOrFail();
+
+        // 3. Verificar si el usuario tiene el 2FA activo
+        if ($user->two_factor_enabled) {
+            session(['2fa_user_id' => $user->id]);
+            RateLimiter::clear($this->throttleKey());
+
+            redirect()->route('2fa.challenge');
+            return;
+        }
+
+        // 4. Si NO tiene 2FA activo, iniciar la sesión con normalidad
+        Auth::login($user, $this->remember);
 
         RateLimiter::clear($this->throttleKey());
     }
