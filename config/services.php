@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'gps' => [
+    'device_token' => env('GPS_DEVICE_TOKEN', 'TOKEN_POR_DEFECTO_CAMBIAR'),
+    'default_lat'  => env('GPS_DEFAULT_LAT', 10.4806),
+    'default_lng'  => env('GPS_DEFAULT_LNG', -66.9036),
+],
+
 ];

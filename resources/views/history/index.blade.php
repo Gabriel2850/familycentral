@@ -202,7 +202,7 @@
                                     <div>
                                         @if(\Illuminate\Support\Facades\Route::has('agenda.pdf'))
                                             <a href="{{ route('agenda.pdf', $item->id) }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 font-bold text-[11px] transition">
-                                                🖨️ Imprimir Ficha
+                                                🖨️ Imprimir
                                             </a>
                                         @else
                                             <span class="text-red-500 text-[10px] font-bold">Ruta PDF no definida</span>
@@ -216,7 +216,7 @@
                 @csrf
                 @method('PATCH')
                 <button type="submit" class="text-red-600 hover:text-red-800 font-bold text-xs bg-red-50 hover:bg-red-100 border border-red-200 px-1 py-1 rounded transition">
-                    Cancelar envío
+                    Cancelar Envío
                 </button>
             </form>
         @else

@@ -1,107 +1,76 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-family-blue leading-tight flex items-center gap-2">
-            📍 Monitoreo de Camioneta de Recolección en Tiempo Real
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
-    <!-- Hojas de estilo y Scripts de Leaflet -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+@section('content')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-    <style>
-        /* Forzar altura física para que el contenedor no colapse */
-        #map {
-            height: 500px !important;
-            width: 100% !important;
-            z-index: 1;
-        }
-    </style>
-
-    <div class="py-6 max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-t-4 border-family-blue">
-            
-            <!-- Tarjetas de Telemetría -->
-            <div class="mb-4 grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-4 rounded border">
-                <div>
-                    <span class="text-xs font-bold text-gray-500 uppercase">Unidad Activa:</span>
-                    <p id="truck-name" class="text-sm font-bold text-family-blue">Cargando...</p>
-                </div>
-                <div>
-                    <span class="text-xs font-bold text-gray-500 uppercase">Velocidad Actual:</span>
-                    <p id="truck-speed" class="text-sm font-bold text-family-orange">-- km/h</p>
-                </div>
-                <div>
-                    <span class="text-xs font-bold text-gray-500 uppercase">Última Señal GPS:</span>
-                    <p id="truck-time" class="text-sm font-bold text-gray-700">--:--:--</p>
-                </div>
-            </div>
-
-            <!-- Contenedor del Mapa con estilo inline de respaldo -->
-            <div id="map" style="height: 500px; width: 100%;" class="rounded-lg shadow-inner border"></div>
-        </div>
+<div class="container mx-auto p-4">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-2xl font-bold text-gray-800">📍Rastreo GPS en Vivo - Camioneta</h2>
+    <div class="text-sm bg-white p-2 rounded border shadow-sm">
+      <span>Estado: </span>
+      <strong id="status-text" class="text-yellow-600">Conectando...</strong> |
+      <span>Última señal: </span><span id="last-updated">Buscando...</span>
     </div>
+  </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Coordenadas base
-            const latBase = 25.6866;
-            const lngBase = -100.3161;
+  <div id="map" class="w-full h-[550px] rounded-lg shadow-md border border-gray-300"></div>
+</div>
 
-            // 1. Inicializar Mapa
-            let map = L.map('map').setView([latBase, lngBase], 15);
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  let map, marker;
 
-            // 2. Cargar Capa de OpenStreetMap
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '© OpenStreetMap'
-            }).addTo(map);
+  function initMap() {
+    const defaultLat = {{ config('services.gps.default_lat', 10.4806) }};
+    const defaultLng = {{ config('services.gps.default_lng', -66.9036) }};
 
-            // 3. Crear Ícono Personalizado
-            let truckIcon = L.divIcon({
-                className: 'custom-truck-marker',
-                html: `<div style="background-color: #1e40af; color: white; padding: 6px; border-radius: 50%; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); text-align: center; font-size: 18px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">🚚</div>`,
-                iconSize: [36, 36],
-                iconAnchor: [18, 18]
-            });
+    map = L.map('map').setView([defaultLat, defaultLng], 14);
 
-            let truckMarker = null;
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
 
-            // 4. Actualización de Coordenadas
-            function updateTruckPosition() {
-                fetch('/api/tracking/truck')
-                    .then(response => response.json())
-                    .then(data => {
-                        let lat = data.lat;
-                        let lng = data.lng;
+    marker = L.marker([defaultLat, defaultLng]).addTo(map)
+      .bindPopup("<b>Camioneta Empresa</b><br>Esperando reporte de GPS...")
+      .openPopup();
 
-                        document.getElementById('truck-name').innerText = data.truck_id + ' (' + data.driver + ')';
-                        document.getElementById('truck-speed').innerText = data.speed;
-                        document.getElementById('truck-time').innerText = data.updated_at;
+    fetchCurrentLocation();
+    setInterval(fetchCurrentLocation, 10000); // Actualiza cada 10 segundos
+  }
 
-                        if (!truckMarker) {
-                            truckMarker = L.marker([lat, lng], { icon: truckIcon }).addTo(map)
-                                .bindPopup("<b>" + data.truck_id + "</b><br>Recolecciones en ruta.")
-                                .openPopup();
-                        } else {
-                            truckMarker.setLatLng([lat, lng]);
-                        }
+  function fetchCurrentLocation() {
+    fetch("{{ route('gps.location') }}")
+      .then(res => res.json())
+      .then(data => {
+        const statusElem = document.getElementById('status-text');
+        const updatedElem = document.getElementById('last-updated');
 
-                        map.panTo([lat, lng]);
-                    })
-                    .catch(error => console.error("Error al obtener telemetría:", error));
-            }
+        if (data.latitude && data.longitude) {
+          const newPos = [data.latitude, data.longitude];
+         
+          marker.setLatLng(newPos);
+          map.panTo(newPos);
 
-            // Ejecutar inmediatamente
-            updateTruckPosition();
-            
-            // Refrescar cada 3 segundos
-            setInterval(updateTruckPosition, 3000);
+          if (data.has_data) {
+            statusElem.innerText = "Activo";
+            statusElem.className = "text-green-600";
+            marker.getPopup().setContent(`<b>Camioneta Empresa</b><br>Velocidad: ${data.speed} km/h`);
+          } else {
+            statusElem.innerText = "Sin datos en BD";
+            statusElem.className = "text-yellow-600";
+          }
 
-            // Invalidation para corregir posibles renders truncados en flexbox/grid
-            setTimeout(() => {
-                map.invalidateSize();
-            }, 500);
-        });
-    </script>
-</x-app-layout>
+          updatedElem.innerText = data.recorded_at;
+        }
+      })
+      .catch(err => {
+        console.error("Error obteniendo GPS:", err);
+        document.getElementById('status-text').innerText = "Error de conexión";
+        document.getElementById('status-text').className = "text-red-600";
+      });
+  }
+
+  document.addEventListener("DOMContentLoaded", initMap);
+</script>
+@endsection

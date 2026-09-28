@@ -36,7 +36,7 @@
         .btn-orange-action {
             background-color: #f6721d !important;
             color: #ffffff !important;
-            font-weight: 700;
+            font-weight: 600;
             border-radius: 0.5rem;
             transition: background-color 0.2s;
         }
@@ -51,7 +51,7 @@
         }
     </style>
 
-    <div class="py-6 max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    <div class="py-6 px-4 max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
         <!-- Banner / Tarjeta de Resumen Visual de KPIs -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -108,14 +108,14 @@
                 <div class="flex items-center gap-2">
                     <!-- Formulario de búsqueda -->
                     <form method="GET" action="{{ route('admin.users.index') }}" class="flex items-center gap-2">
-                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar usuario..." class="h-9 text-xs bg-white border border-gray-300 rounded-md px-3 focus:ring-1 focus:ring-blue-900 focus:border-blue-900 w-64">
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar usuario..." class="h-9 text-xs bg-white border border-gray-300 rounded-md px-3 focus:ring-1 focus:ring-blue-900 focus:border-blue-900 w-63">
                         <button type="submit" class="btn-search-custom h-9 px-3 text-xs font-bold rounded-md">
                             🔍
                         </button>
                     </form>
 
-                    <button type="button" onclick="document.getElementById('modal-create-user').classList.remove('hidden')" class="btn-orange-action text-xs px-4 py-2 font-bold flex items-center gap-1 shadow-sm">
-                        ➕ Nuevo Usuario
+                    <button type="button" onclick="document.getElementById('modal-create-user').classList.remove('hidden')" class="btn-orange-action text-xs px-4 py-2.5 font-bold flex items-center gap-1 shadow-sm">
+                        ➕ Nuevo
                     </button>
                 </div>
             </div>

@@ -2,6 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\GPSController;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -17,4 +19,14 @@ Route::get('/tracking/truck', function () {
         'speed'    => rand(20, 45) . ' km/h',
         'updated_at' => now()->format('H:i:s')
     ]);
+
+    // Endpoint receptivo para Traccar (Público, securizado internamente por token)
+Route::match(['get', 'post'], '/api/v1/gps/update', [GPSController::class, 'updateLocation'])
+    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+
+// Consulta AJAX interna para el mapa (Protegida por autenticación)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/gps/location', [GPSController::class, 'getLocation'])->name('gps.location');
+});
+
 });

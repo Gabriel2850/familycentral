@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class PickupAppointmentController extends Controller
 {
@@ -27,7 +28,7 @@ class PickupAppointmentController extends Controller
 
         // 🔍 Buscador
         if ($request->filled('search')) {
-            $search = $request->input('search');
+            $search = trim(strip_tags($request->input('search')));
             $query->where(function ($q) use ($search) {
                 $q->whereHas('customer', function ($customerQuery) use ($search) {
                     $customerQuery->where('name', 'like', "%{$search}%")
@@ -61,99 +62,105 @@ class PickupAppointmentController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:50',
-            'address' => 'required|string',
+            'address' => 'required|string|max:300',
             'zone_id' => 'required|exists:zones,id',
-            'scheduled_date' => 'required|date',
-            'box_quantity' => 'required|integer|min:1',
+            'scheduled_date' => 'required|date|after_or_equal:today',
+            'box_quantity' => 'required|integer|min:1|max:99',
             'box_dimensions' => 'required|string|max:255',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:1000',
         ]);
 
-        // Registrar o reutilizar cliente por teléfono
+        DB::transaction(function () use ($validated) {
+        // Registrar o reutilizar cliente por teléfono (Sanitizado)
         $customer = Customer::firstOrCreate(
-            ['phone' => $request->input('phone')],
+            ['phone' => trim(strip_tags($validated['phone']))],
             [
-                'name' => $request->input('name'),
-                'address' => $request->input('address'),
+                'name' => trim(strip_tags($validated['name'])),
+                    'address' => trim(strip_tags($validated['address'])),   
             ]
         );
 
         PickupAppointment::create([
-            'customer_id' => $customer->id,
-            'zone_id' => $request->input('zone_id'),
-            'user_id' => Auth::id(),
-            'scheduled_date' => $request->input('scheduled_date'),
-            'box_quantity' => $request->input('box_quantity'),
-            'box_dimensions' => $request->input('box_dimensions'),
-            'status' => 'programado',
-            'notes' => $request->input('notes'),
-        ]);
+                'customer_id' => $customer->id,
+                'zone_id' => $validated['zone_id'],
+                'user_id' => Auth::id(),
+                'scheduled_date' => $validated['scheduled_date'],
+                'box_quantity' => $validated['box_quantity'],
+                'box_dimensions' => trim(strip_tags($validated['box_dimensions'])),
+                'status' => 'programado',
+                'notes' => isset($validated['notes']) ? trim(strip_tags($validated['notes'])) : null,
+            ]);
+        });
 
         return redirect()->back()->with('success', 'Cita agendada exitosamente.');
     }
 
     public function update(Request $request, PickupAppointment $appointment)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:50',
-            'address' => 'required|string',
+            'address' => 'required|string|max:500',
             'zone_id' => 'required|exists:zones,id',
             'scheduled_date' => 'required|date',
-            'box_quantity' => 'required|integer|min:1',
+            'box_quantity' => 'required|integer|min:1|max:999',
             'box_dimensions' => 'required|string|max:255',
             'status' => 'required|in:programado,recolectado,reprogramado,cancelado',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:1000',
             'invoice' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
         ]);
 
-        if ($appointment->customer) {
-            $appointment->customer->update([
-                'name' => $request->input('name'),
-                'phone' => $request->input('phone'),
-                'address' => $request->input('address'),
-            ]);
-        }
-
-        $newStatus = $request->input('status');
-        $originalDate = $appointment->scheduled_date ? Carbon::parse($appointment->scheduled_date)->format('Y-m-d') : null;
-        $postedDate = date('Y-m-d', strtotime($request->input('scheduled_date')));
-
-        if ($originalDate !== $postedDate && $newStatus === 'programado') {
-            $newStatus = 'reprogramado';
-        }
-
-        if ($request->hasFile('invoice')) {
-            if ($appointment->invoice_path && Storage::disk('public')->exists($appointment->invoice_path)) {
-                Storage::disk('public')->delete($appointment->invoice_path);
+        DB::transaction(function () use ($request, $appointment, $validated) {
+            if ($appointment->customer) {
+                $appointment->customer->update([
+                    'name' => trim(strip_tags($validated['name'])),
+                    'phone' => trim(strip_tags($validated['phone'])),
+                    'address' => trim(strip_tags($validated['address'])),
+                ]);
             }
-            $path = $request->file('invoice')->store('invoices', 'public');
-            $appointment->invoice_path = $path;
-        }
 
-        $appointment->update([
-            'zone_id' => $request->input('zone_id'),
-            'scheduled_date' => $request->input('scheduled_date'),
-            'box_quantity' => $request->input('box_quantity'),
-            'box_dimensions' => $request->input('box_dimensions'),
-            'status' => $newStatus,
-            'notes' => $request->input('notes'),
-        ]);
+            $newStatus = $validated['status'];
+            $originalDate = $appointment->scheduled_date ? Carbon::parse($appointment->scheduled_date)->format('Y-m-d') : null;
+            $postedDate = Carbon::parse($validated['scheduled_date'])->format('Y-m-d');
+
+            if ($originalDate !== $postedDate && $newStatus === 'programado') {
+                $newStatus = 'reprogramado';
+            }
+
+            if ($request->hasFile('invoice')) {
+                // Almacenamiento seguro en disco 'local' (privado)
+                if ($appointment->invoice_path && Storage::disk('local')->exists($appointment->invoice_path)) {
+                    Storage::disk('local')->delete($appointment->invoice_path);
+                }
+                
+                $path = $request->file('invoice')->store('invoices', 'local');
+                $appointment->invoice_path = $path;
+            }
+
+            $appointment->update([
+                'zone_id' => $validated['zone_id'],
+                'scheduled_date' => $validated['scheduled_date'],
+                'box_quantity' => $validated['box_quantity'],
+                'box_dimensions' => trim(strip_tags($validated['box_dimensions'])),
+                'status' => $newStatus,
+                'notes' => isset($validated['notes']) ? trim(strip_tags($validated['notes'])) : null,
+            ]);
+        });
 
         return redirect()->back()->with('success', 'Cita de recolección actualizada correctamente.');
     }
 
     public function updateTracking(Request $request, PickupAppointment $appointment)
     {
-        $request->validate([
-            'tracking_number' => 'required|string|max:255',
+        $validated = $request->validate([
+            'tracking_number' => 'required|string|max:255|regex:/^[A-Za-z0-9\-]+$/',
         ]);
 
         $appointment->update([
-            'tracking_number' => $request->input('tracking_number'),
+            'tracking_number' => trim(strip_tags($validated['tracking_number'])),
             'status' => 'recolectado',
         ]);
 
@@ -166,11 +173,11 @@ class PickupAppointmentController extends Controller
             'invoice' => 'required|file|mimes:pdf,jpg,jpeg,png|max:4096',
         ]);
 
-        if ($appointment->invoice_path && Storage::disk('public')->exists($appointment->invoice_path)) {
-            Storage::disk('public')->delete($appointment->invoice_path);
+        if ($appointment->invoice_path && Storage::disk('local')->exists($appointment->invoice_path)) {
+            Storage::disk('local')->delete($appointment->invoice_path);
         }
 
-        $path = $request->file('invoice')->store('invoices', 'public');
+        $path = $request->file('invoice')->store('invoices', 'local');
         $appointment->invoice_path = $path;
         $appointment->save();
 

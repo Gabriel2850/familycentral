@@ -11,21 +11,37 @@ use Illuminate\Validation\Rules;
 class AdminUserController extends Controller
 {
     /**
-     * Muestra la lista de usuarios y estadísticas del panel.
+     * Verifica que el usuario autenticado sea administrador.
      */
-    public function index(Request $request)
+    private function checkAdmin(): void
     {
-        /** @var User $currentUser */
+        /** @var User|null $currentUser */
         $currentUser = Auth::user();
 
         if (!$currentUser || $currentUser->role !== 'admin') {
             abort(403, 'Acceso denegado');
         }
+    }
+
+    /**
+     * Sanitiza una cadena de texto para prevenir XSS.
+     */
+    private function sanitize(?string $input): string
+    {
+        return trim(strip_tags((string) $input));
+    }
+
+    /**
+     * Muestra la lista de usuarios y estadísticas del panel.
+     */
+    public function index(Request $request)
+    {
+        $this->checkAdmin();
 
         $query = User::query();
 
         if ($request->filled('search')) {
-            $search = $request->input('search');
+            $search = $this->sanitize($request->input('search'));
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
                   ->orWhere('email', 'like', '%' . $search . '%');
@@ -48,14 +64,9 @@ class AdminUserController extends Controller
      */
     public function store(Request $request)
     {
-        /** @var User $currentUser */
-        $currentUser = Auth::user();
+        $this->checkAdmin();
 
-        if (!$currentUser || $currentUser->role !== 'admin') {
-            abort(403, 'Acceso denegado');
-        }
-
-        $request->validate([
+        $validated = $request->validate([
             'name'     => ['required', 'string', 'max:255'],
             'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', Rules\Password::defaults()],
@@ -63,10 +74,10 @@ class AdminUserController extends Controller
         ]);
 
         User::create([
-            'name'     => $request->input('name'),
-            'email'    => $request->input('email'),
-            'password' => Hash::make($request->input('password')),
-            'role'     => $request->input('role'),
+            'name'     => $this->sanitize($validated['name']),
+            'email'    => $this->sanitize($validated['email']),
+            'password' => Hash::make($validated['password']),
+            'role'     => $validated['role'],
         ]);
 
         return redirect()->back()->with('success', 'Usuario creado exitosamente.');
@@ -77,23 +88,18 @@ class AdminUserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        /** @var User $currentUser */
-        $currentUser = Auth::user();
+        $this->checkAdmin();
 
-        if (!$currentUser || $currentUser->role !== 'admin') {
-            abort(403, 'Acceso denegado');
-        }
-
-        $request->validate([
+        $validated = $request->validate([
             'name'  => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'role'  => ['required', 'string', 'in:admin,operador,user'],
         ]);
 
         $user->update([
-            'name'  => $request->input('name'),
-            'email' => $request->input('email'),
-            'role'  => $request->input('role'),
+            'name'  => $this->sanitize($validated['name']),
+            'email' => $this->sanitize($validated['email']),
+            'role'  => $validated['role'],
         ]);
 
         return redirect()->back()->with('success', 'Datos del usuario actualizados.');
@@ -104,19 +110,14 @@ class AdminUserController extends Controller
      */
     public function updatePassword(Request $request, User $user)
     {
-        /** @var User $currentUser */
-        $currentUser = Auth::user();
+        $this->checkAdmin();
 
-        if (!$currentUser || $currentUser->role !== 'admin') {
-            abort(403, 'Acceso denegado');
-        }
-
-        $request->validate([
+        $validated = $request->validate([
             'password' => ['required', Rules\Password::defaults()],
         ]);
 
         $user->update([
-            'password' => Hash::make($request->input('password')),
+            'password' => Hash::make($validated['password']),
         ]);
 
         return redirect()->back()->with('success', 'Contraseña actualizada correctamente.');
@@ -127,14 +128,9 @@ class AdminUserController extends Controller
      */
     public function destroy(User $user)
     {
-        /** @var User $currentUser */
-        $currentUser = Auth::user();
+        $this->checkAdmin();
 
-        if (!$currentUser || $currentUser->role !== 'admin') {
-            abort(403, 'Acceso denegado');
-        }
-
-        if ($user->id === $currentUser->id) {
+        if ($user->id === Auth::id()) {
             return redirect()->back()->with('error', 'No puedes eliminar tu propia cuenta.');
         }
 
